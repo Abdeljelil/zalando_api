@@ -1,5 +1,6 @@
-from zalando_api.controllers.product import ProductController
 from aiohttp import web
+
+from zalando_api.controllers.product import ProductController
 from zalando_api.views.middleware import BadParametersError
 
 
@@ -32,9 +33,14 @@ async def search(request):
         raise BadParametersError(
             "'sort' parameter should be in {'ASC', 'DESC'}")
 
+    direction = request.GET.get('direction', 'price')
+
+    if direction not in ["name", "price", "brand"]:
+        raise BadParametersError(
+            "'direction' should be in ['name', 'price', 'brand']")
+
     query = request.GET.get('q', None)
     column = request.GET.get('c', "*")
-    direction = request.GET.get('direction', 'price')
 
     # get the data from the database according the given parameters
     products = await controller.search(

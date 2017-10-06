@@ -1,10 +1,11 @@
-import asyncpg
 import asyncio
-import aiohttp
 import json
-import async_timeout
-from zalando_api.settings import LOG
 
+import aiohttp
+import async_timeout
+import asyncpg
+
+from zalando_api import settings
 
 ZALANDO_API_URL = "https://api.zalando.com/"
 
@@ -12,6 +13,7 @@ ZALANDO_API_URL = "https://api.zalando.com/"
 def parse_raw_products(data):
 
     if "content" not in data:
+        settings.LOG.error(data)
         return []
 
     products = []
@@ -40,9 +42,11 @@ async def get_products_list():
     products = []
 
     async with aiohttp.ClientSession() as session:
-        for page in range(0, 4):
+        pages = (settings.NB_RECORD / 200) + 1
+        pages = int(round(pages))
+        for page in range(1, pages):
             url = "%sarticles/?page=%d&pageSize=200" % (ZALANDO_API_URL, page)
-            LOG.debug(url)
+            settings.LOG.info(url)
             data = await fetch(session, url)
             products += parse_raw_products(data)
 
@@ -54,16 +58,17 @@ async def populate_db(dbname, dbhost, user, password):
     # Read the products list from zalando api
 
     products = await get_products_list()
-    LOG.debug("%d Products loaded from Zalando api" % len(products))
+    settings.LOG.info("%d Products loaded from Zalando api" % len(products))
 
     # Establish a connection
     cnx_uri = 'postgresql://%s:%s@%s/%s' % (user, password, dbhost, dbname)
     conn = await asyncpg.connect(cnx_uri)
-    LOG.debug("Database conncection has been established")
+    settings.LOG.info("Database connection has been established")
 
     # Clean up the table
     try:
         await conn.execute("DROP TABLE products")
+        settings.LOG.info("Old products table has been dropped")
     except asyncpg.exceptions.UndefinedTableError:
         pass
 
@@ -93,9 +98,10 @@ async def populate_db(dbname, dbhost, user, password):
     await conn.close()
 
 if __name__ == "__main__":
-    dbhost = "localhost"
-    user = "zalando"
-    password = "123456789"
-    dbname = "zalando_api"
-    asyncio.get_event_loop().run_until_complete(
-        populate_db(dbname, dbhost, user, password))
+
+    cortourine = populate_db(dbname=settings.DBNAME,
+                             user=settings.DBUSER,
+                             password=settings.DBPW,
+                             dbhost=settings.DBHOST,)
+
+    asyncio.get_event_loop().run_until_complete(cortourine)
