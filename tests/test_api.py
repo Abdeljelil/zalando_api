@@ -129,7 +129,7 @@ class ZalandoApiUnittest(AioHTTPTestCase):
     @unittest_run_loop
     async def test_sort_desc_brand_direction_200(self):
 
-        request = await self.client.request("GET", "/v1/api/search?sort=desc&direction=brand&q=Fleece")
+        request = await self.client.request("GET", "/v1/api/search?sort=desc&direction=brand&q=trousers")
         self.assertEqual(request.status, 200)
 
         text = await request.text()
@@ -138,8 +138,15 @@ class ZalandoApiUnittest(AioHTTPTestCase):
 
         data = sorted(data, key=lambda x: x["index"])
 
-        expectation = ['The North Face', 'Haglöfs', 'adidas Performance']
 
+        expectation = ['Reebok', 'LEGO Wear', 'LEGO Wear',
+                       'LEGO Wear', 'LEGO Wear', 'Escada Sport',
+                       'Columbia', 'Carhartt WIP', 'adidas Performance']
+        print("*" * 50)
+        print([x["brand"] for x in data])
+        print([x["id"] for x in data])
+        print([x["index"] for x in data])
+        print("*" * 50)
         self.assertEqual(
             expectation,
             [x["brand"] for x in data]
@@ -148,7 +155,7 @@ class ZalandoApiUnittest(AioHTTPTestCase):
     @unittest_run_loop
     async def test_sort_asc_brand_direction_200(self):
 
-        request = await self.client.request("GET", "/v1/api/search?sort=asc&direction=brand&q=Fleece")
+        request = await self.client.request("GET", "/v1/api/search?sort=asc&direction=brand&q=trousers")
         self.assertEqual(request.status, 200)
 
         text = await request.text()
@@ -156,8 +163,10 @@ class ZalandoApiUnittest(AioHTTPTestCase):
         data = data["data"]
 
         data = sorted(data, key=lambda x: x["index"])
+        expectation = ['adidas Performance', 'Carhartt WIP',
+                       'Columbia', 'Escada Sport', 'LEGO Wear', 'LEGO Wear',
+                       'LEGO Wear', 'LEGO Wear', 'Reebok']
 
-        expectation = ['adidas Performance', 'Haglöfs', 'The North Face']
 
         self.assertEqual(
             expectation,
