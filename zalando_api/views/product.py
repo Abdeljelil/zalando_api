@@ -27,17 +27,17 @@ async def search(request):
     if page <= 0:
         raise BadParametersError("'page' parameter should be great than 0")
 
-    sort = request.GET.get('sort', 'asc')
+    direction = request.GET.get('direction', 'asc')
 
-    if sort.upper() not in ['ASC', 'DESC']:
+    if direction.upper() not in ['ASC', 'DESC']:
         raise BadParametersError(
-            "'sort' parameter should be in {'ASC', 'DESC'}")
+            "'direction' parameter should be in {'ASC', 'DESC'}")
 
-    direction = request.GET.get('direction', 'price')
+    sort = request.GET.get('sort', 'price')
 
-    if direction not in ["name", "price", "brand"]:
+    if sort not in ["name", "price", "brand"]:
         raise BadParametersError(
-            "'direction' should be in ['name', 'price', 'brand']")
+            "'sort' should be in ['name', 'price', 'brand']")
 
     query = request.GET.get('q', None)
     column = request.GET.get('c', "*")

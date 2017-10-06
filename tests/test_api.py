@@ -82,10 +82,10 @@ class ZalandoApiUnittest(AioHTTPTestCase):
         request = await self.client.request("GET", "v1/api/search?per_page=0")
         self.assertEqual(request.status, 400)
 
-        request = await self.client.request("GET", "v1/api/search?sort=error")
+        request = await self.client.request("GET", "v1/api/search?sort=image_url")
         self.assertEqual(request.status, 400)
 
-        request = await self.client.request("GET", "v1/api/search?direction=image_url")
+        request = await self.client.request("GET", "v1/api/search?direction=desce")
         self.assertEqual(request.status, 400)
 
     @unittest_run_loop
@@ -127,9 +127,9 @@ class ZalandoApiUnittest(AioHTTPTestCase):
             self.assertEqual(keys, allowed_fields)
 
     @unittest_run_loop
-    async def test_sort_desc_brand_direction_200(self):
+    async def test_sort_desc_brand_sort_200(self):
 
-        request = await self.client.request("GET", "/v1/api/search?sort=desc&direction=brand&q=trousers")
+        request = await self.client.request("GET", "/v1/api/search?sort=brand&direction=desc&q=trousers")
         self.assertEqual(request.status, 200)
 
         text = await request.text()
@@ -137,7 +137,6 @@ class ZalandoApiUnittest(AioHTTPTestCase):
         data = data["data"]
 
         data = sorted(data, key=lambda x: x["index"])
-
 
         expectation = ['Reebok', 'LEGO Wear', 'LEGO Wear',
                        'LEGO Wear', 'LEGO Wear', 'Escada Sport',
@@ -153,9 +152,9 @@ class ZalandoApiUnittest(AioHTTPTestCase):
         )
 
     @unittest_run_loop
-    async def test_sort_asc_brand_direction_200(self):
+    async def test_sort_asc_brand_sort_200(self):
 
-        request = await self.client.request("GET", "/v1/api/search?sort=asc&direction=brand&q=trousers")
+        request = await self.client.request("GET", "/v1/api/search?sort=brand&direction=asc&q=trousers")
         self.assertEqual(request.status, 200)
 
         text = await request.text()
@@ -167,7 +166,6 @@ class ZalandoApiUnittest(AioHTTPTestCase):
                        'Columbia', 'Escada Sport', 'LEGO Wear', 'LEGO Wear',
                        'LEGO Wear', 'LEGO Wear', 'Reebok']
 
-
         self.assertEqual(
             expectation,
             [x["brand"] for x in data]
@@ -176,7 +174,7 @@ class ZalandoApiUnittest(AioHTTPTestCase):
     @unittest_run_loop
     async def test_complex_query_page_1_200(self):
 
-        url = '/v1/api/search?sort=desc&direction=brand&q=Jumper&per_page=50&page=1&c=name,brand,price'
+        url = '/v1/api/search?sort=brand&direction=desc&q=Jumper&per_page=50&page=1&c=name,brand,price'
         request = await self.client.request("GET", url)
         self.assertEqual(request.status, 200)
 
@@ -194,7 +192,7 @@ class ZalandoApiUnittest(AioHTTPTestCase):
     @unittest_run_loop
     async def test_complex_query_page_2_200(self):
 
-        url = '/v1/api/search?sort=desc&direction=brand&q=Jumper&per_page=50&page=2&c=name,brand,price'
+        url = '/v1/api/search?sort=brand&direction=desc&q=Jumper&per_page=50&page=2&c=name,brand,price'
         request = await self.client.request("GET", url)
         self.assertEqual(request.status, 200)
 

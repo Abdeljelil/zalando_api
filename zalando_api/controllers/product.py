@@ -10,6 +10,20 @@ class ProductController:
         self.db = request.app['db']
 
     async def search(self, limit, query, column, page, sort, direction):
+        """Search in products table according the given parameters.
+
+    Args:
+        limit (int): Limits the maximum number of items per page the query will retrieve. Default 10.
+        query (str): full text query to match products by any columns (product name, brand).
+                     In case of empty q, all results are return.
+        column (str): Matches only a particular column. Examples: product, brand.
+        page (int): The page number. Default 1.
+        sort (str): The way of sorting the products..
+        direction (str): desc/asc
+    Returns:
+        list of dicts contains the result of the Select query.
+        an empty list will be returned if the query has no result.
+        """
 
         sql_query = "SELECT %s FROM products" % column
 
@@ -19,7 +33,7 @@ class ProductController:
              '''.format(query)
 
         # ORDER BY column-names ASC/DESC
-        sql_query += " ORDER BY %s %s" % (direction, sort.upper())
+        sql_query += " ORDER BY %s %s" % (sort.upper(), direction)
 
         # Make SQL pagination query
         sql_query += " OFFSET %d ROWS" % ((page - 1) * limit)
